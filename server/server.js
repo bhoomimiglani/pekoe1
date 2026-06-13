@@ -48,7 +48,6 @@ app.use(helmet({
     contentSecurityPolicy: false,
 }));
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 app.use(bodyParser.json());
 
 const authenticate = (req, res, next) => {
