@@ -5,7 +5,7 @@ import { fmt, ini, tier } from '../../utils/helpers';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, logout, streakInfo } = useApp();
+  const { user, streakInfo } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
 

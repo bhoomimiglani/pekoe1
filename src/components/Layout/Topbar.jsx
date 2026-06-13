@@ -7,7 +7,7 @@ import PostModal from '../Feed/PostModal';
 const Topbar = () => {
   const [showModal, setShowModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { liveUsers, user } = useApp();
+  const { liveUsers } = useApp();
   const location = useLocation();
 
   const getTitle = () => {
