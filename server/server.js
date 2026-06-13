@@ -10,15 +10,30 @@ const db = require('./db');
 
 const app = express();
 const server = http.createServer(app);
-// Clean ALLOWED_ORIGIN — strip any quotes, spaces, newlines
-const rawOrigin = (process.env.ALLOWED_ORIGIN || '').replace(/['"'\n\r\t ]/g, '');
-const ALLOWED_ORIGIN = rawOrigin || '*';
+// Allowed origins — Vercel frontend + local dev
+const ALLOWED_ORIGINS = [
+    'https://pekoe1.vercel.app',
+    'https://pekoe1-c4x8mg3i2-bhoomimiglani1111-8919s-projects.vercel.app',
+    'http://localhost:3000',
+    'http://192.168.1.13:3000',
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+        // Allow any vercel.app subdomain for preview deployments
+        if (origin.endsWith('.vercel.app')) return callback(null, true);
+        return callback(null, true); // Open for now during testing
+    },
+    credentials: false,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
 
 const io = socketIo(server, {
-    cors: { 
-        origin: ALLOWED_ORIGIN,
-        methods: ['GET', 'POST']
-    }
+    cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
 const PORT = process.env.PORT || 3001;
@@ -32,12 +47,8 @@ const DAILY_GAME_LIMIT = 100; // Max PëKs per day from games
 app.use(helmet({
     contentSecurityPolicy: false,
 }));
-app.use(cors({
-    origin: ALLOWED_ORIGIN,
-    credentials: false,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(bodyParser.json());
 
 const authenticate = (req, res, next) => {
