@@ -10,9 +10,13 @@ const db = require('./db');
 
 const app = express();
 const server = http.createServer(app);
+// Clean ALLOWED_ORIGIN — strip any quotes, spaces, newlines
+const rawOrigin = (process.env.ALLOWED_ORIGIN || '').replace(/['"'\n\r\t ]/g, '');
+const ALLOWED_ORIGIN = rawOrigin || '*';
+
 const io = socketIo(server, {
     cors: { 
-        origin: process.env.ALLOWED_ORIGIN || '*',
+        origin: ALLOWED_ORIGIN,
         methods: ['GET', 'POST']
     }
 });
@@ -29,7 +33,7 @@ app.use(helmet({
     contentSecurityPolicy: false,
 }));
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGIN || '*',
+    origin: ALLOWED_ORIGIN,
     credentials: false,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
