@@ -8,8 +8,8 @@ const Layout = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      fetchCircles();
-      fetchStreakInfo();
+      // Fetch in parallel for faster load
+      Promise.all([fetchCircles(), fetchStreakInfo()]).catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);

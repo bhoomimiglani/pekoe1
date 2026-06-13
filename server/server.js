@@ -182,8 +182,18 @@ app.post('/api/auth/login', async (req, res) => {
 
 // ========== POSTS ENDPOINTS ==========
 
+// In-memory post cache (5 second TTL — keeps UI snappy without stale data)
+let postsCache = { data: null, ts: 0, sort: null, type: null };
+
 app.get('/api/posts', async (req, res) => {
     const { sort, type, category } = req.query;
+    const now = Date.now();
+    
+    // Serve cache if fresh (5s) and same query
+    if (postsCache.data && (now - postsCache.ts < 5000) 
+        && postsCache.sort === sort && postsCache.type === (type || null)) {
+        return res.json(postsCache.data);
+    }
     const token = req.headers['authorization'];
     let userId = null;
 
@@ -222,6 +232,8 @@ app.get('/api/posts', async (req, res) => {
         return { ...post, comment_count: count || 0 };
     }));
     
+    // Cache the result
+    postsCache = { data: postsWithComments, ts: Date.now(), sort, type: type || null };
     res.json(postsWithComments);
 });
 
@@ -256,6 +268,7 @@ app.post('/api/posts', authenticate, async (req, res) => {
     }
     
     await awardPeksWithCommunity(userId, 5, 'Created a post ✍️', id);
+    postsCache = { data: null, ts: 0, sort: null, type: null }; // invalidate cache
     
     io.emit('newPost', { 
         id, user_id: userId, username: displayUsername, avatar_color: displayAvatar, 

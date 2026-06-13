@@ -159,6 +159,13 @@ export const AppProvider = ({ children }) => {
       if (res.data.token) {
         setToken(res.data.token);
         setUser(res.data.user);
+        // Kick off all post-login fetches in parallel
+        api.defaults.headers.common['Authorization'] = res.data.token;
+        Promise.all([
+          fetchPosts('new'),
+          fetchCircles(),
+          fetchStreakInfo(),
+        ]).catch(() => {});
         toast.success(`Welcome ${username}!`);
         return { success: true, isNewUser: res.data.isNewUser };
       }
