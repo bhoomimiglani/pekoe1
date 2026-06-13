@@ -958,7 +958,19 @@ app.get('/api/verify/posts', authenticate, async (req, res) => {
     res.json(flagged);
 });
 
-// ========== QUEST REWARDS ==========
+// ========== KEEP ALIVE (prevents Render free tier cold starts) ==========
+
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL || '';
+if (RENDER_URL) {
+    setInterval(() => {
+        const https = require('https');
+        https.get(`${RENDER_URL}/api/ping`, (res) => {
+            console.log(`Keep-alive ping: ${res.statusCode}`);
+        }).on('error', () => {});
+    }, 10 * 60 * 1000); // every 10 minutes
+}
+
+app.get('/api/ping', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
 app.post('/api/user/quest-reward', authenticate, async (req, res) => {
     const amount = Math.min(100, Math.max(1, parseInt(req.body.amount, 10) || 0));
