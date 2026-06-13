@@ -13,7 +13,7 @@ const TicTacToe = () => {
   const [gameCount, setGameCount] = useState(0);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
   const [dailyLimit, setDailyLimit] = useState({ earnedToday: 0, remainingToday: 100, dailyLimit: 100 });
-  const { user } = useApp();
+  const { } = useApp();
 
   const winPatterns = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -145,6 +145,7 @@ const TicTacToe = () => {
     if (gameStarted && !winner && !isXTurn && !isAIPlaying && !winner) {
       aiMove();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameStarted, isXTurn, board]);
 
   const handleCellClick = (index) => {

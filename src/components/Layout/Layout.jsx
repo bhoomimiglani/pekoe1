@@ -1,19 +1,17 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
 const Layout = ({ children }) => {
   const { user, fetchCircles, fetchStreakInfo } = useApp();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     if (user) {
       fetchCircles();
       fetchStreakInfo();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   return (

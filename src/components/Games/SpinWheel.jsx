@@ -12,35 +12,24 @@ const SpinWheel = () => {
     
     setSpinning(true);
     
-    // Random spin amount (5-10 full rotations + random angle)
     const randomSpins = 5 + Math.random() * 5;
     const randomAngle = Math.random() * 360;
     const newRotation = rotation + (randomSpins * 360) + randomAngle;
     
-    // Apply animation
     setRotation(newRotation);
     
     if (wheelRef.current) {
       wheelRef.current.style.transform = `rotate(${newRotation}deg)`;
     }
     
-    // Call API to get prize
-    const result = await spinWheel();
+    await spinWheel();
     
-    // Stop spinning after animation (4 seconds)
     setTimeout(() => {
       setSpinning(false);
     }, 4000);
   };
 
-  // Wheel segments with colors
-  const segments = [
-    { color: '#E8531F', label: '10', angle: 0 },
-    { color: '#F5A623', label: '20', angle: 72 },
-    { color: '#00C9B1', label: '50', angle: 144 },
-    { color: '#7C3AED', label: '100', angle: 216 },
-    { color: '#2563EB', label: '500', angle: 288 },
-  ];
+  // Wheel uses CSS conic-gradient directly — no segments array needed
 
   return (
     <div className="game-card">

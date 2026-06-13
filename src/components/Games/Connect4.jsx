@@ -170,7 +170,6 @@ const Connect4 = () => {
     
     setIsAIPlaying(true);
     
-    // Very short delay for visual feedback
     setTimeout(() => {
       const currentBoard = [...board];
       const col = getBestAIMove(currentBoard);
@@ -183,6 +182,7 @@ const Connect4 = () => {
       }
       setIsAIPlaying(false);
     }, 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameStarted, winner, currentPlayer, board, getBestAIMove, isAIPlaying]);
 
   useEffect(() => {
