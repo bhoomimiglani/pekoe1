@@ -13,7 +13,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: { 
-        origin: '*',  // Allow any device on the network
+        origin: process.env.ALLOWED_ORIGIN || '*',
         methods: ['GET', 'POST']
     }
 });
@@ -30,7 +30,7 @@ app.use(helmet({
     contentSecurityPolicy: false,
 }));
 app.use(cors({
-    origin: '*',  // Allow any device on the network
+    origin: process.env.ALLOWED_ORIGIN || '*',
     credentials: false,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']

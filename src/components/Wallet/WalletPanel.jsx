@@ -23,6 +23,7 @@ const WalletPanel = () => {
     loadWalletData();
     loadStickers();
     loadCommunityFund();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Live balance sync

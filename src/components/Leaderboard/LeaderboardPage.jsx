@@ -13,6 +13,7 @@ const LeaderboardPage = () => {
 
   useEffect(() => {
     loadLeaderboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Refresh leaderboard whenever any user's balance changes

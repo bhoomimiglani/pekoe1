@@ -19,6 +19,7 @@ const Connect4 = () => {
 
   useEffect(() => {
     loadGameLimit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadGameLimit = async () => {

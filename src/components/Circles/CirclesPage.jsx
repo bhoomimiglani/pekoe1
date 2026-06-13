@@ -6,6 +6,7 @@ const CirclesPage = () => {
 
   useEffect(() => {
     fetchCircles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const isJoined = (circleId) => {

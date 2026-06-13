@@ -8,6 +8,7 @@ const VerifyPage = () => {
 
   useEffect(() => {
     fetchFlaggedPosts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchFlaggedPosts = async () => {

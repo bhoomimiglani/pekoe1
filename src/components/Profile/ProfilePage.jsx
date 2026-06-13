@@ -15,6 +15,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const t = tier(user?.peks || 0);

@@ -26,6 +26,7 @@ const PostCard = ({ post }) => {
   useEffect(() => {
     loadStickers();
     loadUserStickers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadStickers = async () => {
