@@ -11,7 +11,6 @@ const WalletPanel = () => {
   const [streakFreezes, setStreakFreezes] = useState(0);
   const [stickers, setStickers] = useState([]);
   const [userStickers, setUserStickers] = useState([]);
-  const [activeBoosts, setActiveBoosts] = useState([]);
   const [recentTips, setRecentTips] = useState([]);
   const [communityFund, setCommunityFund] = useState(0);
   const [showTipModal, setShowTipModal] = useState(false);
@@ -42,7 +41,6 @@ const WalletPanel = () => {
       const res = await api.get('/api/user/balance');
       setBalance(res.data.balance);
       setStreakFreezes(res.data.streakFreezes);
-      setActiveBoosts(res.data.activeBoosts || []);
       setRecentTips(res.data.recentTips || []);
     } catch (error) {
       console.error('Failed to load wallet data', error);

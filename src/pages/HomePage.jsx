@@ -10,6 +10,7 @@ const HomePage = () => {
 
   useEffect(() => {
     fetchPosts(sort);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sort]);
 
   // Categories for filtering
@@ -25,16 +26,8 @@ const HomePage = () => {
     { id: 'education', label: 'Education', icon: '📚' },
   ];
 
-  // Post type filters
-  const postTypes = [
-    { id: 'all', label: 'All Posts', icon: '📰' },
-    { id: 'text', label: 'Text', icon: '📝' },
-    { id: 'hot', label: 'Hot Takes', icon: '🔥' },
-    { id: 'poll', label: 'Polls', icon: '📊' },
-    { id: 'review', label: 'Reviews', icon: '⭐' },
-    { id: 'ranked_list', label: 'Ranked Lists', icon: '📋' },
-    { id: 'townhall', label: 'Townhall', icon: '⚔️' },
-  ];
+  // Post type filters (reserved for future filter UI)
+  // const postTypes = [ ... ]
 
   const sortOptions = [
     { key: 'hot', label: '🔥 Hot' },

@@ -142,6 +142,7 @@ const PostCard = ({ post }) => {
     if (showComments && comments.length === 0) {
       loadComments();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showComments]);
 
   const getBadgeClass = (type) => {

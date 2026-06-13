@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { fmt, ago, esc } from '../../utils/helpers';
+import { fmt, esc } from '../../utils/helpers';
 import api from '../../services/api';
 import { useApp } from '../../context/AppContext';
 import toast from 'react-hot-toast';

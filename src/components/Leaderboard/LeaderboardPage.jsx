@@ -24,6 +24,7 @@ const LeaderboardPage = () => {
     return () => {
       socket.off('balanceUpdate');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket]);
 
   return (
