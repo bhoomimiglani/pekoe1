@@ -18,7 +18,7 @@ const PostCard = ({ post }) => {
   const [showStickerPicker, setShowStickerPicker] = useState(false);
   const [stickers, setStickers] = useState([]);
   
-  const { circles, flagPost, user } = useApp();
+  const { circles } = useApp();
   const circle = circles.find(c => c.id === post.circle_id) || { name: post.circle_id, icon: '🏘️' };
   const isScholar = post.username === 'DrMeeraK';
 

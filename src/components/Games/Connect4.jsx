@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useApp } from '../../context/AppContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -15,7 +14,7 @@ const Connect4 = () => {
   const [gameCount, setGameCount] = useState(0);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
   const [dailyLimit, setDailyLimit] = useState({ earnedToday: 0, remainingToday: 100, dailyLimit: 100 });
-  const { user } = useApp();
+  // no context needed
 
   useEffect(() => {
     loadGameLimit();

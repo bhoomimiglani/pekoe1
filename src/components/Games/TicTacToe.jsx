@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useApp } from '../../context/AppContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
@@ -13,7 +12,7 @@ const TicTacToe = () => {
   const [gameCount, setGameCount] = useState(0);
   const [isAIPlaying, setIsAIPlaying] = useState(false);
   const [dailyLimit, setDailyLimit] = useState({ earnedToday: 0, remainingToday: 100, dailyLimit: 100 });
-  const { } = useApp();
+  // no context needed
 
   const winPatterns = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
