@@ -254,7 +254,7 @@ const PostCard = ({ post }) => {
     return (
       <div className="vbars">
         <div className="vbrow">
-          <div className="vblabel">{post.sideA || 'Side A'}</div>
+          <div className="vblabel">{post.sideA || post.sidea || 'Side A'}</div>
           <div className="vbtrack">
             <div className="vbfill" style={{ width: `${pctA}%`, background: 'var(--grad-ember)' }}></div>
           </div>

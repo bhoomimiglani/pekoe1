@@ -1,7 +1,6 @@
 require('dotenv').config({ override: true });
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const cors = require('cors');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const http = require('http');
@@ -10,27 +9,14 @@ const db = require('./db');
 
 const app = express();
 const server = http.createServer(app);
-// Allowed origins — Vercel frontend + local dev
-const ALLOWED_ORIGINS = [
-    'https://pekoe1.vercel.app',
-    'https://pekoe1-c4x8mg3i2-bhoomimiglani1111-8919s-projects.vercel.app',
-    'http://localhost:3000',
-    'http://192.168.1.13:3000',
-];
-
-const corsOptions = {
-    origin: function (origin, callback) {
-        // Allow requests with no origin (mobile apps, curl, Postman)
-        if (!origin) return callback(null, true);
-        if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
-        // Allow any vercel.app subdomain for preview deployments
-        if (origin.endsWith('.vercel.app')) return callback(null, true);
-        return callback(null, true); // Open for now during testing
-    },
-    credentials: false,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-};
+// Simple open CORS — handles all origins cleanly
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') return res.sendStatus(200);
+    next();
+});
 
 const io = socketIo(server, {
     cors: { origin: '*', methods: ['GET', 'POST'] }
@@ -47,7 +33,6 @@ const DAILY_GAME_LIMIT = 100; // Max PëKs per day from games
 app.use(helmet({
     contentSecurityPolicy: false,
 }));
-app.use(cors(corsOptions));
 app.use(bodyParser.json());
 
 const authenticate = (req, res, next) => {
@@ -256,7 +241,7 @@ app.post('/api/posts', authenticate, async (req, res) => {
     const { error: insertError } = await db.from('posts').insert([{
         id, user_id: userId, username: displayUsername, real_username: isAnonymous ? username : null,
         avatar_color: displayAvatar, type, circle_id, title, body: body || '',
-        sideA: sideA || null, sideB: sideB || null, poll_data: poll_data || null,
+        sidea: sideA || null, sideb: sideB || null, poll_data: poll_data || null,
         image_url: imageUrl || null, review_data: reviewData || null, 
         ranked_list_data: rankedListData || null, category: category || 'general',
         votes: 0, dn: 0, expires_at, star_sum: 0, star_count: 0,

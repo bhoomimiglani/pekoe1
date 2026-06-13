@@ -109,7 +109,7 @@ const TownhallPage = () => {
               
               <div className="vbars">
                 <div className="vbrow">
-                  <div className="vblabel">{debate.sideA || 'Side A'}</div>
+                  <div className="vblabel">{debate.sideA || debate.sidea || 'Side A'}</div>
                   <div className="vbtrack">
                     <div className="vbfill" style={{ width: `${pctA}%`, background: 'var(--grad-ember)' }}></div>
                   </div>
@@ -132,7 +132,7 @@ const TownhallPage = () => {
                   className={`thvbtn thva ${debate.user_vote === 'up' ? 'voted' : ''}`}
                   onClick={() => voteTownhall(debate.id, 'up')}
                 >
-                  Support {debate.sideA || 'Side A'}
+                  Support {debate.sideA || debate.sidea || 'Side A'}
                 </button>
                 <button 
                   className={`thvbtn thvb ${debate.user_vote === 'down' ? 'voted' : ''}`}
