@@ -1,6 +1,5 @@
 require('dotenv').config({ override: true });
 const express = require('express');
-const path = require('path');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const helmet = require('helmet');

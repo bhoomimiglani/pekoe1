@@ -1,6 +1,5 @@
 require('dotenv').config({ override: true });
 const { createClient } = require('@supabase/supabase-js');
-const ws = require('ws');
 const { v4: uuidv4 } = require('uuid');
 
 const supabaseUrl = (process.env.SUPABASE_URL || '').trim();
