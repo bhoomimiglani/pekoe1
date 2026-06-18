@@ -420,7 +420,7 @@ export const AppProvider = ({ children }) => {
       posts, setPosts,
       circles, setCircles,
       badges, peksLog, stats, liveUsers, streakInfo, gameHistory,
-      loading, token,
+      loading, token, setToken,
       socket,
       login, logout,
       fetchPosts, fetchCircles, fetchProfile, fetchLeaderboard,

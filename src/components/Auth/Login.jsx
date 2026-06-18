@@ -1,12 +1,78 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
+import { supabase } from '../../services/supabaseClient';
+import api from '../../services/api';
 
 const Login = () => {
-  const [tab, setTab] = useState('login'); // 'login' | 'signup'
+  const [tab, setTab] = useState('login');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useApp();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const { login, setUser, setToken } = useApp();
+
+  // Handle Google OAuth callback — Supabase redirects back here after Google login
+  useEffect(() => {
+    const handleOAuthCallback = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (session && session.user) {
+        const googleUser = session.user;
+        const rawName = googleUser.user_metadata?.full_name || googleUser.email || '';
+        // Convert to valid username: letters/numbers/underscore, 2-24 chars
+        const suggestedUsername = rawName
+          .replace(/[^a-zA-Z0-9_]/g, '_')
+          .replace(/_+/g, '_')
+          .replace(/^_|_$/g, '')
+          .slice(0, 24) || 'user';
+
+        // Log in or register via our backend using Google identity
+        try {
+          const res = await api.post('/api/auth/google-login', {
+            googleId: googleUser.id,
+            email: googleUser.email,
+            suggestedUsername,
+            avatarUrl: googleUser.user_metadata?.avatar_url,
+          });
+          if (res.data.token) {
+            localStorage.setItem('pk_token', res.data.token);
+            api.defaults.headers.common['Authorization'] = res.data.token;
+            setToken(res.data.token);
+            setUser(res.data.user);
+          }
+        } catch (err) {
+          console.error('Google login error:', err);
+        }
+      }
+    };
+
+    handleOAuthCallback();
+
+    // Listen for auth state changes (handles the redirect)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          handleOAuthCallback();
+        }
+      }
+    );
+    return () => subscription.unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+      },
+    });
+    if (error) {
+      alert('Google login failed: ' + error.message);
+      setGoogleLoading(false);
+    }
+    // If no error, browser redirects to Google — no further action needed
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,14 +122,14 @@ const Login = () => {
           </div>
 
           {/* Google Auth */}
-          <button style={s.googleBtn} onClick={() => alert('Google auth coming soon!')}>
+          <button style={s.googleBtn} onClick={handleGoogleLogin} disabled={googleLoading}>
             <svg width="18" height="18" viewBox="0 0 18 18" style={{ marginRight: 8 }}>
               <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18z"/>
               <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17z"/>
               <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18l2.67-2.07z"/>
               <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3z"/>
             </svg>
-            Continue with Google
+            {googleLoading ? 'Redirecting to Google…' : 'Continue with Google'}
           </button>
 
           <div style={s.divider}><span style={s.dividerText}>or</span></div>

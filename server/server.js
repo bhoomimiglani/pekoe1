@@ -126,6 +126,71 @@ async function checkDailyGameLimit(userId) {
     return { totalEarned, remaining, canEarn: remaining > 0 };
 }
 
+// ========== GOOGLE OAuth LOGIN ==========
+
+app.post('/api/auth/google-login', async (req, res) => {
+    const { googleId, email, suggestedUsername, avatarUrl } = req.body;
+    if (!googleId || !email) {
+        return res.status(400).json({ error: 'Invalid Google credentials' });
+    }
+
+    try {
+        // Check if user already exists by google_id or email
+        let { data: user } = await db.from('users').select('*').eq('google_id', googleId).maybeSingle();
+        
+        if (!user) {
+            // Try by email
+            ({ data: user } = await db.from('users').select('*').eq('email', email).maybeSingle());
+        }
+
+        if (user) {
+            // Update google_id if not set
+            if (!user.google_id) {
+                await db.from('users').update({ google_id: googleId }).eq('id', user.id);
+            }
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+            let newStreak = user.streak || 1;
+            if (user.last_login !== today) {
+                newStreak = user.last_login === yesterday ? newStreak + 1 : 1;
+                await db.from('users').update({ streak: newStreak, last_login: today }).eq('id', user.id);
+            }
+            const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '30d' });
+            return res.json({ token, user: { ...user, streak: newStreak }, isNewUser: false });
+        }
+
+        // New user — generate unique username
+        let username = suggestedUsername || 'user';
+        const { data: existing } = await db.from('users').select('username').eq('username', username).maybeSingle();
+        if (existing) {
+            username = username.slice(0, 20) + Math.floor(Math.random() * 9999);
+        }
+
+        const avatarColor = ['#C8401A','#5B21B6','#0D7A6E','#1D4ED8','#15803D','#B07D2A','#B91C1C','#0D7A6E'][Math.floor(Math.random()*8)];
+        const today = new Date().toISOString().split('T')[0];
+
+        const { data: newUser, error: insertError } = await db.from('users').insert([{
+            username, email, peks: 100, avatar_color: avatarColor,
+            streak: 1, last_login: today, streak_freezes: 0,
+            google_id: googleId, avatar_url: avatarUrl || null
+        }]).select().single();
+
+        if (insertError) {
+            console.error('Google insert error:', JSON.stringify(insertError));
+            return res.status(500).json({ error: 'Failed to create user: ' + insertError.message });
+        }
+
+        await db.from('user_badges').insert([{ user_id: newUser.id, badge_id: 'founder' }]);
+        await db.from('peks_history').insert([{ user_id: newUser.id, amt: 100, reason: 'Welcome bonus — Founder! 🌟' }]);
+
+        const token = jwt.sign({ id: newUser.id, username }, JWT_SECRET, { expiresIn: '30d' });
+        res.json({ token, user: newUser, isNewUser: true });
+    } catch (err) {
+        console.error('Google login crash:', err.message);
+        res.status(500).json({ error: 'Server error: ' + err.message });
+    }
+});
+
 // ========== AUTH ENDPOINTS ==========
 
 app.post('/api/auth/login', async (req, res) => {
