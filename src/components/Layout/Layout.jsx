@@ -8,7 +8,6 @@ const Layout = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      // Fetch in parallel for faster load
       Promise.all([fetchCircles(), fetchStreakInfo()]).catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -17,15 +16,20 @@ const Layout = ({ children }) => {
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={{ marginLeft: '252px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <div className="main-content">
         <Topbar />
-        <div style={{ flex: 1, padding: '1.25rem 1.5rem 1rem', maxWidth: '960px', margin: '0 auto', width: '100%' }}>
+        <div className="content-area">
           {children}
         </div>
-        <footer style={{ padding: '1rem 1.5rem 1.25rem', textAlign: 'center', fontSize: '0.68rem', color: 'rgba(245,242,236,0.36)', borderTop: '1px solid rgba(255,255,255,0.055)', background: 'rgba(6,6,12,0.5)' }}>
-          <span style={{ fontFamily: "'Syne', sans-serif", fontWeight: 700, background: 'linear-gradient(135deg, #FFC857, #E8531F)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PëKœ</span>
-          <span style={{ opacity: 0.4, margin: '0 0.35rem' }}>·</span>
-          <span>Earn · Discuss · Verify</span>
+        <footer style={{
+          padding: '1rem 2rem', textAlign: 'center',
+          fontSize: '0.68rem', color: '#B8B4AE',
+          borderTop: '1px solid rgba(26,26,24,0.08)',
+          background: '#FAFAF8',
+        }}>
+          <span style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, color: '#C8401A' }}>PëKœ</span>
+          <span style={{ margin: '0 0.35rem', opacity: 0.4 }}>·</span>
+          Earn · Discuss · Verify
         </footer>
       </div>
     </div>
