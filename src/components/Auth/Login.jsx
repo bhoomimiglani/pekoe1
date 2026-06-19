@@ -14,7 +14,7 @@ const Login = () => {
   // Handle Google OAuth callback — Supabase redirects back here after Google login
   useEffect(() => {
     const handleOAuthCallback = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (session && session.user) {
         const googleUser = session.user;
         const rawName = googleUser.user_metadata?.full_name || googleUser.email || '';
