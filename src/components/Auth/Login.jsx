@@ -74,9 +74,9 @@ const Login = () => {
       return;
     }
     setLoading(true);
-    const result = await login(username, email);
+    const result = await login(username, email, password, false);
     setLoading(false);
-    if (!result?.success) setError('Login failed. Check your username and try again.');
+    if (!result?.success) setError(result?.error || 'Login failed. Check your credentials.');
   };
 
   const handleSignup = async (e) => {
@@ -92,9 +92,9 @@ const Login = () => {
     if (password.length < 6) { setError('Password must be at least 6 characters'); return; }
     if (password !== confirmPassword) { setError('Passwords do not match'); return; }
     setLoading(true);
-    const result = await login(username, email);
+    const result = await login(username, email, password, true);
     setLoading(false);
-    if (!result?.success) setError('Signup failed. Username may already be taken.');
+    if (!result?.success) setError(result?.error || 'Signup failed. Username may already be taken.');
   };
 
   return (

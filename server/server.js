@@ -1,6 +1,7 @@
 require('dotenv').config({ override: true });
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
 const http = require('http');
@@ -194,7 +195,7 @@ app.post('/api/auth/google-login', async (req, res) => {
 // ========== AUTH ENDPOINTS ==========
 
 app.post('/api/auth/login', async (req, res) => {
-    const { username, email } = req.body;
+    const { username, email, password, isSignup } = req.body;
     if (!username || !USERNAME_RE.test(username)) {
         return res.status(400).json({ error: 'Username must be 2-24 characters (letters, numbers, underscore)' });
     }
@@ -207,37 +208,78 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(500).json({ error: 'Database error: ' + error.message });
         }
 
-        if (user) {
+        if (isSignup) {
+            // ── SIGNUP ──
+            if (user) {
+                return res.status(400).json({ error: 'Username already taken. Choose another.' });
+            }
+            if (!email) return res.status(400).json({ error: 'Email is required for signup' });
+            if (!password || password.length < 6) {
+                return res.status(400).json({ error: 'Password must be at least 6 characters' });
+            }
+
+            const passwordHash = await bcrypt.hash(password, 10);
+            const avatarColor = ['#C8401A','#5B21B6','#0D7A6E','#1D4ED8','#15803D','#B07D2A','#B91C1C','#0D7A6E'][Math.floor(Math.random() * 8)];
+            const today = new Date().toISOString().split('T')[0];
+
+            const { data: newUser, error: insertError } = await db.from('users').insert([{
+                username, email, peks: 100, avatar_color: avatarColor,
+                streak: 1, last_login: today, streak_freezes: 0,
+                password_hash: passwordHash
+            }]).select().single();
+
+            if (insertError) {
+                console.error('Signup insert error:', JSON.stringify(insertError));
+                return res.status(500).json({ error: 'Failed to create account: ' + insertError.message });
+            }
+
+            await db.from('user_badges').insert([{ user_id: newUser.id, badge_id: 'founder' }]);
+            await db.from('peks_history').insert([{ user_id: newUser.id, amt: 100, reason: 'Welcome bonus — Founder! 🌟' }]);
+
+            const token = jwt.sign({ id: newUser.id, username }, JWT_SECRET, { expiresIn: '30d' });
+            return res.json({ token, user: { ...newUser }, isNewUser: true });
+
+        } else {
+            // ── LOGIN ──
+            if (!user) {
+                // No user found — create one (backward compat for username-only login)
+                if (password) {
+                    return res.status(400).json({ error: 'No account found. Please sign up first.' });
+                }
+                // Legacy username-only login — create account
+                const avatarColor = ['#C8401A','#5B21B6','#0D7A6E','#1D4ED8','#15803D','#B07D2A','#B91C1C','#0D7A6E'][Math.floor(Math.random() * 8)];
+                const today = new Date().toISOString().split('T')[0];
+                const { data: newUser, error: insertError } = await db.from('users').insert([{
+                    username, email: email || '', peks: 100, avatar_color: avatarColor,
+                    streak: 1, last_login: today, streak_freezes: 0
+                }]).select().single();
+                if (insertError) return res.status(500).json({ error: 'Failed to create user: ' + insertError.message });
+                await db.from('user_badges').insert([{ user_id: newUser.id, badge_id: 'founder' }]);
+                await db.from('peks_history').insert([{ user_id: newUser.id, amt: 100, reason: 'Welcome bonus — Founder! 🌟' }]);
+                const token = jwt.sign({ id: newUser.id, username }, JWT_SECRET, { expiresIn: '30d' });
+                return res.json({ token, user: { ...newUser }, isNewUser: true });
+            }
+
+            // User exists — verify password if they have one set
+            if (user.password_hash && password) {
+                const valid = await bcrypt.compare(password, user.password_hash);
+                if (!valid) {
+                    return res.status(401).json({ error: 'Incorrect password. Please try again.' });
+                }
+            } else if (user.password_hash && !password) {
+                return res.status(401).json({ error: 'This account requires a password.' });
+            }
+
             const today = new Date().toISOString().split('T')[0];
             let newStreak = user.streak || 1;
             const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-
             if (user.last_login !== today) {
-                if (user.last_login === yesterday) newStreak++;
-                else newStreak = 1;
+                newStreak = user.last_login === yesterday ? newStreak + 1 : 1;
                 await db.from('users').update({ streak: newStreak, last_login: today }).eq('id', user.id);
             }
 
             const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET, { expiresIn: '30d' });
-            res.json({ token, user: { ...user, streak: newStreak }, isNewUser: false });
-        } else {
-            const avatarColor = ['#E8531F', '#7C3AED', '#0D9488', '#2563EB', '#10B981', '#F5A623', '#EF4444', '#00C9B1'][Math.floor(Math.random() * 8)];
-            const today = new Date().toISOString().split('T')[0];
-            
-            const { data: newUser, error: insertError } = await db.from('users').insert([
-                { username, email: email || '', peks: 100, avatar_color: avatarColor, streak: 1, last_login: today, streak_freezes: 0 }
-            ]).select().single();
-
-            if (insertError) {
-                console.error('Insert error:', JSON.stringify(insertError));
-                return res.status(500).json({ error: 'Failed to create user: ' + insertError.message });
-            }
-            
-            await db.from('user_badges').insert([{ user_id: newUser.id, badge_id: 'founder' }]);
-            await db.from('peks_history').insert([{ user_id: newUser.id, amt: 100, reason: 'Welcome bonus — Founder! 🌟' }]);
-            
-            const token = jwt.sign({ id: newUser.id, username }, JWT_SECRET, { expiresIn: '30d' });
-            res.json({ token, user: { ...newUser }, isNewUser: true });
+            return res.json({ token, user: { ...user, streak: newStreak }, isNewUser: false });
         }
     } catch (err) {
         console.error('Login route crash:', err.message, err.stack);

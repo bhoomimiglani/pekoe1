@@ -9,6 +9,7 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.17.0",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "date-fns": "^4.4.0",
     "dotenv": "^17.4.2",
@@ -25,15 +26,15 @@
     "uuid": "^14.0.0",
     "web-vitals": "^2.1.4"
   },
- "scripts": {
-  "start": "react-scripts start",
-  "server": "node server/server.js",
-  "client": "react-scripts start",
-  "dev": "concurrently \"npm run server\" \"npm run client\"",
-  "build": "react-scripts build",
-  "test": "react-scripts test",
-  "eject": "react-scripts eject"
-},
+  "scripts": {
+    "start": "react-scripts start",
+    "server": "node server/server.js",
+    "client": "react-scripts start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",

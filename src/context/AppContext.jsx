@@ -152,28 +152,24 @@ export const AppProvider = ({ children }) => {
     }
   }, [token]);
 
-  const login = async (username, email) => {
+  const login = async (username, email, password = '', isSignup = false) => {
     setLoading(true);
     try {
-      const res = await api.post('/api/auth/login', { username, email });
+      const res = await api.post('/api/auth/login', { username, email, password, isSignup });
       if (res.data.token) {
         setToken(res.data.token);
         setUser(res.data.user);
-        // Kick off all post-login fetches in parallel
         api.defaults.headers.common['Authorization'] = res.data.token;
-        Promise.all([
-          fetchPosts('new'),
-          fetchCircles(),
-          fetchStreakInfo(),
-        ]).catch(() => {});
+        Promise.all([fetchPosts('new'), fetchCircles(), fetchStreakInfo()]).catch(() => {});
         toast.success(`Welcome ${username}!`);
         return { success: true, isNewUser: res.data.isNewUser };
       }
       toast.error('Login failed: no token received');
       return { success: false };
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Login failed');
-      return { success: false };
+      const msg = error.response?.data?.error || 'Login failed';
+      toast.error(msg);
+      return { success: false, error: msg };
     } finally {
       setLoading(false);
     }
