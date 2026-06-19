@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { fmt, ini, tier } from '../../utils/helpers';
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const { user, streakInfo } = useApp();
   const navigate = useNavigate();
   const location = useLocation();

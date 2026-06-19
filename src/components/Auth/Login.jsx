@@ -61,14 +61,14 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: window.location.origin,
       },
     });
-    if (error) {
-      alert('Google login failed: ' + error.message);
+    if (oauthError) {
+      alert('Google login failed: ' + oauthError.message);
       setGoogleLoading(false);
     }
     // If no error, browser redirects to Google — no further action needed
