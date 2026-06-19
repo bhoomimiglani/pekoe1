@@ -20,7 +20,7 @@ const Sidebar = () => {
     { path: '/wallet',      icon: '💰', label: 'Wallet' },
   ];
 
-  const handleNav = (path) => { navigate(path); setIsOpen(false); };
+  const handleNav = (path) => { navigate(path); };
   const userTier = user ? tier(user.peks) : { name: 'Newcomer', color: '#8A8680' };
 
   return (
