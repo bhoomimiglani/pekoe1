@@ -14,6 +14,7 @@ const Login = () => {
   // Handle Google OAuth callback — Supabase redirects back here after Google login
   useEffect(() => {
     const handleOAuthCallback = async () => {
+      if (!supabase) return;
       const { data: { session } } = await supabase.auth.getSession();
       if (session && session.user) {
         const googleUser = session.user;
@@ -47,7 +48,7 @@ const Login = () => {
 
     handleOAuthCallback();
 
-    // Listen for auth state changes (handles the redirect)
+    if (!supabase) return;
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
@@ -60,6 +61,10 @@ const Login = () => {
   }, []);
 
   const handleGoogleLogin = async () => {
+    if (!supabase) {
+      alert('Google login is not configured yet. Please use username login.');
+      return;
+    }
     setGoogleLoading(true);
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
