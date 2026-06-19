@@ -5,7 +5,7 @@ import { fmt } from '../../utils/helpers';
 import PostModal from '../Feed/PostModal';
 
 const PAGE_META = {
-  '/':            { title: 'Home Feed',       sub: 'Discover what India is talking about' },
+  '/':            { title: 'Explore',         sub: 'Feed · Townhall · Hot Takes — all in one place' },
   '/hottake':     { title: '🔥 Hot Takes',    sub: 'Bold opinions — vote before the timer runs out' },
   '/townhall':    { title: '⚔️ Townhall',     sub: 'Side A vs Side B — live debate bars' },
   '/circles':     { title: '🏘️ Circles',     sub: 'Join communities that match your interests' },

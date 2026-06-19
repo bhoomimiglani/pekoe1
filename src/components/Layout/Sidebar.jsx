@@ -9,9 +9,8 @@ const Sidebar = () => {
   const location = useLocation();
 
   const navItems = [
-    { path: '/',            icon: '🏠', label: 'Home Feed' },
+    { path: '/',            icon: '🧭', label: 'Explore' },
     { path: '/hottake',     icon: '🔥', label: 'Hot Takes' },
-    { path: '/townhall',    icon: '⚔️',  label: 'Townhall' },
     { path: '/circles',     icon: '🏘️', label: 'Circles' },
     { path: '/verify',      icon: '✅', label: 'Verify' },
     { path: '/quests',      icon: '🎯', label: 'Daily Quests' },
