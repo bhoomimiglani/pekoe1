@@ -69,7 +69,7 @@ const Login = () => {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: 'https://pekoe1.vercel.app',
       },
     });
     if (oauthError) {
