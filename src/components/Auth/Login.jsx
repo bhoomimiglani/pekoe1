@@ -73,6 +73,9 @@ const Login = () => {
       setError('Username: 2-24 characters, letters/numbers/underscore only');
       return;
     }
+    if (!email.trim()) { setError('Email is required'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError('Enter a valid email address'); return; }
+    if (!password || password.length < 1) { setError('Password is required'); return; }
     setLoading(true);
     const result = await login(username, email, password, false);
     setLoading(false);
@@ -151,16 +154,28 @@ const Login = () => {
           {/* LOGIN FORM */}
           {tab === 'login' && (
             <form onSubmit={handleLogin}>
-              <label style={s.label}>Username</label>
+              <label style={s.label}>Username <span style={s.req}>*</span></label>
               <input
                 type="text" placeholder="e.g. priya_blr" value={username}
                 onChange={e => setUsername(e.target.value)} style={s.input} maxLength="24" required
               />
-              <label style={s.label}>Email <span style={s.opt}>(optional)</span></label>
+              <label style={s.label}>Email <span style={s.req}>*</span></label>
               <input
                 type="email" placeholder="you@email.com" value={email}
-                onChange={e => setEmail(e.target.value)} style={s.input}
+                onChange={e => setEmail(e.target.value)} style={s.input} required
               />
+              <label style={s.label}>Password <span style={s.req}>*</span></label>
+              <div style={{ position: 'relative', marginBottom: '1rem' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Your password" value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  style={{ ...s.input, marginBottom: 0 }} required
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} style={s.eyeBtn}>
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
               <button type="submit" style={s.submitBtn} disabled={loading}>
                 {loading ? 'Signing in…' : 'Sign In →'}
               </button>
